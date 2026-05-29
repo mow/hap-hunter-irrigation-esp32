@@ -20,6 +20,7 @@ managed_components/
 .gemini/
 .specs-fire/
 .specsmd/
+draft-brief.md
 .github/copilot-instructions.local.md
 
 # Python
