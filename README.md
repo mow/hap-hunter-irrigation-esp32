@@ -11,7 +11,7 @@
 
 ---
 
-# Hunter X-Core REM HomeKit Bridge (ESP32-C3)
+# Hunter X-Core REM HomeKit Accessory (ESP32-C3)
 
 Firmware that turns an existing **Hunter X-Core** irrigation controller into an Apple HomeKit accessory by emulating the HunterRoam SmartPort remote protocol on the controller's **REM** terminal. The Hunter X-Core keeps doing the 24 VAC valve switching; the ESP32-C3 only injects remote-control commands.
 
@@ -284,7 +284,7 @@ Runtime settings (Wi-Fi creds, admin password, zone count, runtimes, schedule, t
 
 ## Credits & license
 
-- HunterRoam protocol research: prior open-source projects on the Hunter REM bus.
+- HunterRoam protocol: https://github.com/ecodina/hunter-wifi/ 
 - HomeKit: [espressif/esp-homekit-sdk](https://github.com/espressif/esp-homekit-sdk) (Apache-2.0), vendored as a submodule.
 - This firmware: **MIT** unless a `LICENSE` file in this repo states otherwise.
 
