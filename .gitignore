@@ -1,0 +1,31 @@
+# Build & toolchain output
+build/
+sdkconfig.old
+*.bin
+*.elf
+*.map
+
+# ESP-IDF component manager (regenerated from dependencies.lock)
+managed_components/
+
+# Editor / IDE
+.vscode/ipch/
+.vscode/.browse.*
+*.swp
+*.swo
+.DS_Store
+
+# Local agent / tooling caches
+.claude/
+.gemini/
+.specs-fire/
+.specsmd/
+.github/copilot-instructions.local.md
+
+# Python
+__pycache__/
+*.pyc
+
+# Logs / scratch
+/tmp/
+*.log

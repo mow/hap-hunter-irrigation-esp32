@@ -1,0 +1,32 @@
+idf_component_register(
+    SRCS
+        "hunter_protocol.c"
+        "hunter.c"
+        "homekit_irrigation.c"
+        "irrigation_runtime.c"
+        "../components/esp-homekit-sdk/examples/common/qrcode/src/qrcodegen.c"
+        "rem_gpio_driver.c"
+        "reset_button.c"
+        "scheduler.c"
+        "settings_store.c"
+        "status_led.c"
+        "time_sync.c"
+        "runtime_state.c"
+        "service_boundaries.c"
+    INCLUDE_DIRS "."
+        "../components/esp-homekit-sdk/examples/common/qrcode/src"
+    REQUIRES
+        driver
+        esp_driver_gpio
+        esp_event
+        esp_hap_apple_profiles
+        esp_hap_core
+        esp_http_server
+        esp_netif
+        esp_system
+        esp_timer
+        esp_wifi
+        lwip
+        mbedtls
+        nvs_flash
+)

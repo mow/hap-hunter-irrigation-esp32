@@ -1,0 +1,64 @@
+dependencies:
+  espressif/jsmn:
+    component_hash: d80350c41bbaa827c98a25b6072df00884e72f54885996fab4a4f0aebce6b6c3
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=4.3'
+    source:
+      registry_url: https://components.espressif.com
+      type: service
+    version: 1.1.0
+  espressif/json_generator:
+    component_hash: 45033e1c199b13f1c8c1b544fb7d4e2df6a8e3071ebdcb1b22582b61a7974ff2
+    dependencies: []
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.1.2
+  espressif/json_parser:
+    component_hash: d74b81729ad06ec11ff5eb5b1b0d7df1d00e6027fc11471f4b139c70dcf1b1e4
+    dependencies:
+    - name: espressif/jsmn
+      registry_url: https://components.espressif.com
+      require: private
+      rules:
+      - if: idf_version >=5.0
+      version: ~1.1
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.0.3
+  espressif/libsodium:
+    component_hash: 39c9dc77d81804d54a539c8f076faed165152be7720ddd0e721acb9daf4aa5af
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=4.2'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.0.22
+  espressif/mdns:
+    component_hash: 8bcf12e37c58c1d584aef32a02b92548124c7a3a9fcf548d3235c844a035e0f0
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.11.1
+  idf:
+    source:
+      type: idf
+    version: 6.0.1
+direct_dependencies:
+- espressif/json_generator
+- espressif/json_parser
+- espressif/libsodium
+- espressif/mdns
+- idf
+manifest_hash: 123dcf5ce92abcad5d461e0f47c8677f88a367c6c27d06f48d9af04e4f1b2dba
+target: esp32c3
+version: 3.0.0
