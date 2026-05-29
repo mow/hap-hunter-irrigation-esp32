@@ -1,3 +1,4 @@
 [submodule "components/esp-homekit-sdk"]
 	path = components/esp-homekit-sdk
-	url = https://github.com/espressif/esp-homekit-sdk.git
+	url = https://github.com/mow/esp-homekit-sdk.git
+	branch = idf-v6-patches
