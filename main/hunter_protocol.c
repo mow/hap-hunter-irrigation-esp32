@@ -6,6 +6,8 @@
 
 #include "app_config.h"
 #include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "rem_gpio_driver.h"
 
 /*
@@ -20,6 +22,11 @@ static const char *TAG = "hunter_proto";
 #define HUNTER_MINUTES_MAX 240U
 
 #define START_ZONE_FRAME_BYTES 15U
+
+/* Idle gap inserted between consecutive frames so the controller can latch each
+ * one. The reference library doesn't enforce this, but back-to-back frames from
+ * hunterStopAll can otherwise be dropped by some receivers. */
+#define HUNTER_INTER_FRAME_DELAY_MS 100U
 
 static uint8_t s_last_started_zone;
 
@@ -55,14 +62,24 @@ static void hunter_bitfield(uint8_t *bits, size_t bits_len, uint8_t pos, uint8_t
 
 static esp_err_t write_bus(const uint8_t *buffer, size_t len, bool extra_bit)
 {
+    /* Lead-in: line just sits at a level for tens of milliseconds, so timing
+     * jitter here is irrelevant. Do NOT raise priority for this portion --
+     * 390 ms of Wi-Fi starvation per frame would be wasted. */
     esp_err_t err = rem_gpio_send_pulse(325000U, 65000U);
     if (err != ESP_OK) {
         return err;
     }
 
+    /* Timing-critical region: start pulse + bit stream + extra bit + stop pulse
+     * (~250 ms). Bump above the Wi-Fi task (prio 23) so task-level preemption
+     * cannot stretch a 208 us SHORT past the ~1000 us bit-discriminator
+     * midpoint. ISRs still run; their <50 us jitter is within tolerance. */
+    UBaseType_t orig_prio = uxTaskPriorityGet(NULL);
+    vTaskPrioritySet(NULL, configMAX_PRIORITIES - 1);
+
     err = rem_gpio_send_pulse(HUNTER_START_INTERVAL_US, HUNTER_SHORT_INTERVAL_US);
     if (err != ESP_OK) {
-        return err;
+        goto restore;
     }
 
     for (size_t i = 0; i < len; ++i) {
@@ -70,8 +87,7 @@ static esp_err_t write_bus(const uint8_t *buffer, size_t len, bool extra_bit)
         for (uint8_t bit = 0; bit < 8U; ++bit) {
             err = ((send_byte & 0x80U) != 0U) ? send_high() : send_low();
             if (err != ESP_OK) {
-                rem_gpio_force_idle();
-                return err;
+                goto restore;
             }
             send_byte <<= 1;
         }
@@ -80,12 +96,15 @@ static esp_err_t write_bus(const uint8_t *buffer, size_t len, bool extra_bit)
     if (extra_bit) {
         err = send_high();
         if (err != ESP_OK) {
-            rem_gpio_force_idle();
-            return err;
+            goto restore;
         }
     }
 
     err = send_low();
+
+restore:
+    vTaskPrioritySet(NULL, orig_prio);
+
     if (err != ESP_OK) {
         rem_gpio_force_idle();
         return err;
@@ -199,6 +218,9 @@ esp_err_t hunterStopAll(void)
     esp_err_t first_error = ESP_OK;
 
     for (uint8_t zone = HUNTER_ZONE_MIN; zone <= HUNTER_ZONE_COUNT_MAX; ++zone) {
+        if (zone > HUNTER_ZONE_MIN) {
+            vTaskDelay(pdMS_TO_TICKS(HUNTER_INTER_FRAME_DELAY_MS));
+        }
         esp_err_t err = send_start_zone_frame(zone, HUNTER_MINUTES_STOP);
         if (err != ESP_OK) {
             ESP_LOGE(TAG,
